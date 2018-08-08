@@ -33,3 +33,27 @@ AD0CR&=(adstop);
 //IO0DIR=temp1;
 return x;
 }
+unsigned int read_y(void)  			//CONFIGURE X+ & X- AS GPIO AND Y+ AS ADC
+{
+unsigned int temp,temp1,i;
+//temp=PINSEL1;
+//temp1=IO0DIR;
+
+AD0CR=((adpdn)|(adclkdiv)|(1<<2));
+PINSEL1&=(~((3<<18)|(3<<24)|(3<<28)));	
+PINSEL1|=(1<<26);
+PINSEL1&=(~(1<<27));				//pin P0.29 AS ANALOG INPUT
+IO0DIR|=((1<<25)|(1<<28));
+IO0DIR&=(~(1<<30));
+IO0SET|=(1<<25);
+IO0CLR|=(1<<28);
+for(i=0;i<1000;i++);
+AD0CR|=(adstart);
+while(((AD0DR2)&(0x80000000))==0x00000000);
+y=((AD0DR2>>6) & 0x3FF);
+AD0CR&=(adstop);
+IO0CLR|=((1<<25)|(1<<28));
+
+//PINSEL1=temp;
+//IO0DIR=temp1;
+return y;} 
